@@ -11,6 +11,7 @@ permissions:
 jobs:
   update-readme:
     runs-on: ubuntu-latest
+    environment: key
 
     steps:
       - name: Checkout
