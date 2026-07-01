@@ -64,14 +64,17 @@ def render_bar(pct, length=BAR_LENGTH):
 
 
 def build_language_table(repos):
-    counts = defaultdict(int)
+    pct_sums = defaultdict(float)
     for repo in repos:
         langs = get_languages(repo["full_name"])
-        for lang in langs.keys():  # presence only, not bytes
-            counts[lang] += 1
+        repo_total = sum(langs.values())
+        if repo_total == 0:
+            continue
+        for lang, b in langs.items():
+            pct_sums[lang] += (b / repo_total) * 100  # this repo's % for this language
 
-    grand_total = sum(counts.values())
-    rows = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)
+    grand_total = sum(pct_sums.values())
+    rows = sorted(pct_sums.items(), key=lambda kv: kv[1], reverse=True)
 
     if not rows:
         return "No language data found."
@@ -79,8 +82,8 @@ def build_language_table(repos):
     name_width = max(len(lang) for lang, _ in rows)
 
     lines = []
-    for lang, count in rows:
-        pct = (count / grand_total) * 100 if grand_total else 0
+    for lang, pct_sum in rows:
+        pct = (pct_sum / grand_total) * 100 if grand_total else 0
         bar = render_bar(pct)
         lines.append(f"{lang.ljust(name_width)}  {bar}  {pct:5.1f}%")
     return "```\n" + "\n".join(lines) + "\n```"
