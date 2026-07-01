@@ -1,4 +1,4 @@
-![Repos](assets/repo-cards.svg)
+
 ![Contributions](assets/contributions.svg)
 <!--LANG-STATS:START-->
 
