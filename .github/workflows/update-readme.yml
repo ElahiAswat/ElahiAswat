@@ -1,9 +1,9 @@
-name: update-readme
+name: Update Language Stats
 
 on:
   schedule:
-    - cron: "0 0 * * *"
-  workflow_dispatch:
+    - cron: "0 0 * * *"   # daily at midnight UTC
+  workflow_dispatch: {}    # allows manual trigger from the Actions tab
 
 permissions:
   contents: write
@@ -12,7 +12,7 @@ jobs:
   update-readme:
     runs-on: ubuntu-latest
     environment: key
-
+      
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,34 +25,28 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Debug environment
-        env:
-          GITHUB_TOKEN: ${{ secrets.LANGUAGES }}
-          GITHUB_USER: ${{ github.repository_owner }}
-        run: |
-          echo "Repository owner: $GITHUB_USER"
-
-          if [ -z "$GITHUB_TOKEN" ]; then
-            echo "❌ GITHUB_TOKEN is EMPTY"
-            exit 1
-          fi
-
-          echo "✅ Token exists"
-          echo "Token length: ${#GITHUB_TOKEN}"
-
       - name: Run language stats script
         env:
           GITHUB_TOKEN: ${{ secrets.LANGUAGES }}
           GITHUB_USER: ${{ github.repository_owner }}
         run: python .github/scripts/update_readme.py
 
+      - name: Generate repo cards SVG
+        env:
+          GITHUB_TOKEN: ${{ secrets.LANGUAGES }}
+          GITHUB_USER: ${{ github.repository_owner }}
+        run: python .github/scripts/generate_repo_cards.py
+
+      - name: Generate contribution graph SVG
+        env:
+          GITHUB_TOKEN: ${{ secrets.LANGUAGES }}
+          GITHUB_USER: ${{ github.repository_owner }}
+        run: python .github/scripts/generate_contrib_graph.py
+
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add README.md
-
-          git diff --staged --quiet || git commit -m "chore: update language stats"
-
+          git add README.md assets/
+          git diff --staged --quiet || git commit -m "chore: update language stats and profile assets"
           git push
