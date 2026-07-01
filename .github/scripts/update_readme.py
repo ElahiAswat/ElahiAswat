@@ -36,9 +36,9 @@ def get_repos():
     page = 1
     while True:
         resp = requests.get(
-            f"{API}/users/{USER}/repos",
+            f"{API}/user/repos",
             headers=HEADERS,
-            params={"per_page": 100, "page": page, "type": "owner"},
+            params={"per_page": 100, "page": page, "affiliation": "owner"},
         )
         resp.raise_for_status()
         batch = resp.json()
@@ -64,14 +64,14 @@ def render_bar(pct, length=BAR_LENGTH):
 
 
 def build_language_table(repos):
-    totals = defaultdict(int)
+    counts = defaultdict(int)
     for repo in repos:
         langs = get_languages(repo["full_name"])
-        for lang, b in langs.items():
-            totals[lang] += b
+        for lang in langs.keys():  # presence only, not bytes
+            counts[lang] += 1
 
-    grand_total = sum(totals.values())
-    rows = sorted(totals.items(), key=lambda kv: kv[1], reverse=True)
+    grand_total = sum(counts.values())
+    rows = sorted(counts.items(), key=lambda kv: kv[1], reverse=True)
 
     if not rows:
         return "No language data found."
@@ -79,8 +79,8 @@ def build_language_table(repos):
     name_width = max(len(lang) for lang, _ in rows)
 
     lines = []
-    for lang, b in rows:
-        pct = (b / grand_total) * 100 if grand_total else 0
+    for lang, count in rows:
+        pct = (count / grand_total) * 100 if grand_total else 0
         bar = render_bar(pct)
         lines.append(f"{lang.ljust(name_width)}  {bar}  {pct:5.1f}%")
     return "```\n" + "\n".join(lines) + "\n```"
