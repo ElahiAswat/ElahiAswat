@@ -1,7 +1,7 @@
 
 ![Contributions](assets/contributions.svg)
 
-<h1> A normalized different calculation</h1>
+<h3> Normalized across intra inter</h3>
 <!--LANG-STATS:START-->
 
 ```
