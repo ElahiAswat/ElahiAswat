@@ -31,12 +31,6 @@ jobs:
           GITHUB_USER: ${{ github.repository_owner }}
         run: python .github/scripts/update_readme.py
 
-      - name: Generate repo cards SVG
-        env:
-          GITHUB_TOKEN: ${{ secrets.LANGUAGES }}
-          GITHUB_USER: ${{ github.repository_owner }}
-        run: python .github/scripts/generate_repo_cards.py
-
       - name: Generate contribution graph SVG
         env:
           GITHUB_TOKEN: ${{ secrets.LANGUAGES }}
